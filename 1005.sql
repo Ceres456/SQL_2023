@@ -73,9 +73,61 @@ from orders o, customer c, book b
     where o.custid=c.custid and o.bookid=b.bookid and saleprice >= 20000;
     
 -- 생성한 뷰를 이용하여 판매된 도서의 이름과 고객의 이름을 출력하는 SQL문을 작성하시오
-select bookname, name
-from highorders
-
--- 
 
 
+-- insertbook 프로시저 실행
+exec insertbook(15, '스포츠과학','마당과학서적', 25000);
+
+select * from book;
+
+exec insertorupdate(16, '스포츠 즐거움', '마당과학서적', 30000);
+
+exec insertorupdate(16, '스포츠 즐거움', '마당과학서적', 20000);
+
+set SERVEROUTPUT on;
+declare 
+    averageVal number;
+begin
+    averagePrice(averageVal);
+    dbms_output.put_line('도서평균가격: '||averageVal);
+end;
+
+create or replace PROCEDURE AVERAGEPRICE(
+averageVal out number)
+AS 
+BEGIN
+  select avg(price) into averageVal from book
+  where price is not null;
+END AVERAGEPRICE;
+
+create or replace PROCEDURE INSERTBOOK(
+    myBookId in number,
+    myBookName in varchar2,
+    myPublisher in varchar2,
+    myPrice in number)
+AS 
+BEGIN
+  insert into book(bookid, bookname, publisher, price)
+  values(myBookId, myBookName, MyPublisher, Myprice);
+END INSERTBOOK;
+
+create or replace PROCEDURE INSERTORUPDATE(
+    myBookId number,
+    myBookName varchar2,
+    myPublisher varchar2,
+    myPrice int
+)
+AS 
+    myCount number;
+BEGIN
+    select count(*) into myCount from book
+    where bookname like myBookName;
+  
+    if myCount != 0 then
+        update book set price=myPrice
+        where bookname like myBookName;
+    else
+        insert into book(bookid, bookname, publisher, price)
+        values(myBookId, myBookName, myPublisher, myPrice);
+    end if;
+END INSERTORUPDATE;
